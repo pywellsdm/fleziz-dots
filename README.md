@@ -8,6 +8,7 @@ My personal Hyprland rice — dark glassmorphism aesthetic, custom rofi launcher
 
 ![Preview 1](screenshots/preview1.png)
 ![Preview 2](screenshots/preview2.png)
+![Preview 3](screenshots/preview3.png)
 
 ## Install
 
@@ -35,7 +36,7 @@ The script installs required packages (pacman + AUR via yay), backs up any exist
 | `Super + M` | Power menu / logout |
 | `Super + E` | File manager (Dolphin) |
 | `Super + V` | Toggle floating |
-| `Super + R` | App launcher |
+| `Super + R` | waybar refresh (i needed that during waybar ricing) |
 | `Super + P` | Toggle pseudotile |
 | `Super + J` | Toggle split direction |
 | `Super + D` | Rofi drun (app search) |
