@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+    echo "Usage: wallpaper-switch [--random|--restore|<image-path>]"
+    echo "  --random    Pick a random wallpaper from ~/Pictures"
+    echo "  --restore   Restore last wallpaper from waypaper config"
+    echo "  <path>      Set a specific image as wallpaper"
+    exit 1
+}
+
+WALLPAPER="${1:-}"
+
+if [[ -z "$WALLPAPER" || "$WALLPAPER" == "-h" || "$WALLPAPER" == "--help" ]]; then
+    usage
+fi
+
+if [[ "$WALLPAPER" == "--random" ]]; then
+    WALLPAPER=$(find ~/Pictures/Wallpapers -maxdepth 1 -type f \( -iname '*.jpg' -o -iname '*.png' -o -iname '*.jpeg' -o -iname '*.webp' \) | shuf -n1)
+    if [[ -z "$WALLPAPER" ]]; then
+        echo "No images found in ~/Pictures/Wallpapers"
+        exit 1
+    fi
+    echo "Selected: $WALLPAPER"
+fi
+
+if [[ "$WALLPAPER" == "--restore" ]]; then
+    exec waypaper --restore
+fi
+
+if [[ ! -f "$WALLPAPER" ]]; then
+    echo "File not found: $WALLPAPER"
+    exit 1
+fi
+
+# Update wallpaper, terminal colors, and hyprlock
+update-wallpaper "$WALLPAPER"

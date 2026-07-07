@@ -1,0 +1,25 @@
+[config]
+set_wallpaper = false
+
+[templates.waybar]
+input_path = '~/.config/matugen/templates/colors.css'
+output_path = '~/.config/waybar/colors.css'
+post_hook = 'killall -SIGUSR2 waybar'
+
+[templates.kitty]
+input_path = '~/.config/matugen/templates/kitty-colors.conf'
+output_path = '~/.config/kitty/colors.conf'
+post_hook = 'killall -SIGUSR1 kitty'
+
+[templates.hyprland]
+input_path = '~/.config/matugen/templates/hyprland-colors.conf'
+output_path = '~/.config/hypr/colors.conf'
+
+[templates.rofi]
+input_path = '~/.config/matugen/templates/rofi-colors.rasi'
+output_path = '~/.config/rofi/matugen.rasi'
+post_hook = 'killall -SIGUSR2 waybar'
+
+[templates.hyprpaper]
+input_path = '~/.config/matugen/templates/hyprpaper.conf'
+output_path = '~/.config/hypr/hyprpaper.conf'

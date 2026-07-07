@@ -1,0 +1,17 @@
+hyprland
+waybar
+rofi
+mako
+kitty
+hyprlock
+grim
+slurp
+swappy
+wl-clipboard
+playerctl
+brightnessctl
+qt5ct
+qt6ct
+xsettingsd
+fastfetch
+libqalculate

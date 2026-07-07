@@ -1,0 +1,178 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+NO_SWWW=false
+ARGS=()
+
+for arg in "$@"; do
+    if [[ "$arg" == "--no-swww" ]]; then
+        NO_SWWW=true
+    else
+        ARGS+=("$arg")
+    fi
+done
+
+WALLPAPER="${ARGS[0]:-}"
+
+if [[ -z "$WALLPAPER" ]]; then
+    echo "Usage: update-wallpaper [--no-swww] <image-path>"
+    echo "  --no-swww   Skip setting wallpaper with swww (use when waypaper already set it)"
+    exit 1
+fi
+
+if [[ ! -f "$WALLPAPER" ]]; then
+    echo "File not found: $WALLPAPER"
+    exit 1
+fi
+
+# 1. Set wallpaper with swww (unless --no-swww)
+if [[ "$NO_SWWW" == false ]]; then
+    swww img "$WALLPAPER" --transition-type any --transition-step 63 --transition-duration 2
+fi
+
+# 2. Update hyprlock symlink to current wallpaper
+HYPRLOCK_WALL_DIR="$HOME/.config/hyprlock"
+mkdir -p "$HYPRLOCK_WALL_DIR"
+ln -sf "$WALLPAPER" "$HYPRLOCK_WALL_DIR/current-wallpaper"
+
+# 3. Run pywal16 for terminal 16-color scheme
+wal -i "$WALLPAPER" -q 2>/dev/null || true
+
+# 4. Run matugen for everything else (waybar, rofi, hyprland colors, etc.)
+#    This also generates the initial kitty colors.conf and reloads kitty
+matugen-smart "$WALLPAPER" 2>/dev/null || true
+
+# 5. Merge pywal16's 16 colors into kitty config, overriding matugen's
+PYWAL_COLORS="$HOME/.cache/wal/colors-kitty.conf"
+KITTY_COLORS="$HOME/.config/kitty/colors.conf"
+
+if [[ -f "$PYWAL_COLORS" && -f "$KITTY_COLORS" ]]; then
+    for i in $(seq 0 15); do
+        color_val=$(grep "^color${i}\s" "$PYWAL_COLORS" | awk '{print $2}')
+        if [[ -n "$color_val" ]]; then
+            sed -i "s/^color${i}\s\+.*/color${i}  $color_val/" "$KITTY_COLORS"
+        fi
+    done
+    # Reload kitty with merged colors
+    killall -SIGUSR1 kitty 2>/dev/null || true
+fi
+
+# 6. Update fastfetch colors from pywal16 palette
+FASTFETCH_CONFIG="$HOME/.config/fastfetch/config.jsonc"
+WAL_COLORS="$HOME/.cache/wal/colors.json"
+
+if [[ -f "$WAL_COLORS" ]]; then
+    C1=$(jq -r '.colors.color1' "$WAL_COLORS" 2>/dev/null)
+    C3=$(jq -r '.colors.color3' "$WAL_COLORS" 2>/dev/null)
+    C5=$(jq -r '.colors.color5' "$WAL_COLORS" 2>/dev/null)
+    C6=$(jq -r '.colors.color6' "$WAL_COLORS" 2>/dev/null)
+    C7=$(jq -r '.colors.color7' "$WAL_COLORS" 2>/dev/null)
+    FG=$(jq -r '.special.foreground' "$WAL_COLORS" 2>/dev/null)
+
+    cat > "$FASTFETCH_CONFIG" << FASTEOF 2>/dev/null
+{
+    "\$schema": "https://github.com/fastfetch-cli/fastfetch/raw/master/doc/json_schema.json",
+    "logo": {
+        "type": "file",
+        "source": "$HOME/Documents/my_ascii.txt",
+        "color": {
+            "1": "$FG"
+        },
+        "padding": {
+            "top": 1,
+            "left": 1,
+            "right": 3
+        }
+    },
+    "display": {
+        "separator": "  ❯  ",
+        "color": {
+            "keys": "$FG",
+            "title": "$FG"
+        },
+        "key": {
+            "width": 14
+        }
+    },
+    "modules": [
+        "title",
+        {
+            "type": "separator",
+            "string": "─────────────────────────"
+        },
+        "break",
+        {
+            "type": "os",
+            "key": " 󰣇  OS       ",
+            "keyColor": "$FG"
+        },
+        {
+            "type": "kernel",
+            "key": " 󰡳  KERNEL   ",
+            "keyColor": "$C6"
+        },
+        {
+            "type": "host",
+            "key": " 󰌢  HOST     ",
+            "keyColor": "$C5"
+        },
+        {
+            "type": "shell",
+            "key": " 󱆃  SHELL    ",
+            "keyColor": "$FG"
+        },
+        {
+            "type": "terminal",
+            "key": " 󰆍  TERM     ",
+            "keyColor": "$C3"
+        },
+        {
+            "type": "separator",
+            "string": "─────────────────────────"
+        },
+        {
+            "type": "cpu",
+            "key": " 󰻠  CPU      ",
+            "keyColor": "$C1"
+        },
+        {
+            "type": "gpu",
+            "key": " 󰍛  GPU      ",
+            "keyColor": "$C6"
+        },
+        {
+            "type": "memory",
+            "key": " 󰑭  RAM      ",
+            "keyColor": "$FG"
+        },
+        {
+            "type": "disk",
+            "key": " 󰋊  DISK     ",
+            "keyColor": "$C3"
+        },
+        {
+            "type": "uptime",
+            "key": " 󱎫  UPTIME   ",
+            "keyColor": "$C5"
+        },
+        {
+            "type": "datetime",
+            "key": " 󰃰  DATE     ",
+            "keyColor": "$FG"
+        },
+        "break",
+        {
+            "type": "colors",
+            "paddingLeft": 2,
+            "symbol": "circle"
+        },
+        "break"
+    ]
+}
+FASTEOF
+fi
+
+# 7. Reload waybar (matugen post_hook already does this, but just to be safe)
+killall -SIGUSR2 waybar 2>/dev/null || true
+
+echo "Wallpaper, terminal colors, fastfetch, and hyprlock updated."

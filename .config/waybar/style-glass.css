@@ -1,0 +1,141 @@
+@import "colors.css";
+
+* {
+    border: none;
+    border-radius: 0;
+    font-family: "JetBrainsMono Nerd Font", monospace;
+    font-size: 13px;
+    min-height: 0;
+}
+
+window#waybar {
+    background-color: alpha(@surface_container, 0.25);
+    border-radius: 14px;
+    color: @on_surface;
+}
+
+tooltip {
+    background-color: alpha(@surface_container_high, 0.88);
+    border-radius: 10px;
+    color: @on_surface;
+}
+
+tooltip label {
+    color: alpha(@on_surface, 0.9);
+}
+
+#clock {
+    padding: 5px 16px;
+    margin: 4px 2px;
+    color: alpha(@on_surface, 0.95);
+    font-weight: 600;
+}
+
+#window {
+    padding: 5px 12px;
+    margin: 4px 2px;
+    color: alpha(@on_surface, 0.5);
+    font-size: 12px;
+}
+
+#workspaces {
+    padding: 0 4px;
+    background-color: transparent;
+    margin: 0;
+}
+
+#workspaces button {
+    padding: 3px 8px;
+    margin: 4px 3px;
+    min-width: 32px;
+    min-height: 24px;
+    background-color: alpha(@surface_container_highest, 0.55);
+    color: alpha(@on_surface, 0.85);
+    border-radius: 8px;
+    border: 1px solid alpha(@outline_variant, 0.45);
+    transition: all 0.2s ease;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+#workspaces button.active {
+    background-color: alpha(@primary, 0.9);
+    color: @on_primary;
+    border: 1px solid alpha(@primary, 1);
+    font-weight: 700;
+}
+
+#workspaces button:hover {
+    background-color: alpha(@surface_container, 0.75);
+    color: @on_surface;
+    border: 1px solid alpha(@outline, 0.7);
+}
+
+#workspaces button.urgent {
+    background-color: alpha(@error, 0.2);
+    color: alpha(@error, 1);
+    border: 1px solid alpha(@error, 0.7);
+    animation: urgentPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes urgentPulse {
+    0%   { background-color: alpha(@error, 0.15); }
+    50%  { background-color: alpha(@error, 0.35); }
+    100% { background-color: alpha(@error, 0.15); }
+}
+
+#language,
+#network,
+#pulseaudio,
+#battery,
+#backlight {
+    padding: 5px 16px;
+    margin: 4px 4px;
+    color: alpha(@on_surface, 0.9);
+    border-radius: 10px;
+    background-color: alpha(@on_surface, 0.09);
+    border: 1px solid alpha(@on_surface, 0.28);
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+#language:hover,
+#network:hover,
+#pulseaudio:hover,
+#battery:hover,
+#backlight:hover {
+    background-color: alpha(@on_surface, 0.15);
+    border: 1px solid alpha(@on_surface, 0.42);
+}
+
+#battery.charging {
+    color: alpha(@tertiary, 0.95);
+    border: 1px solid alpha(@tertiary, 0.35);
+}
+
+#battery.warning:not(.charging) {
+    color: alpha(@tertiary_fixed_dim, 0.95);
+    border: 1px solid alpha(@tertiary_fixed_dim, 0.35);
+}
+
+#battery.critical:not(.charging) {
+    color: alpha(@error, 0.95);
+    border: 1px solid alpha(@error, 0.5);
+    animation: blink 1s linear infinite;
+}
+
+@keyframes blink {
+    0%   { opacity: 1; }
+    50%  { opacity: 0.45; }
+    100% { opacity: 1; }
+}
+
+#network.disconnected {
+    color: alpha(@error, 0.95);
+    border: 1px solid alpha(@error, 0.6);
+}
+
+#pulseaudio.muted {
+    color: alpha(@on_surface, 0.3);
+    border: 1px solid alpha(@on_surface, 0.15);
+}

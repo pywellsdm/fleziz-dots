@@ -1,0 +1,5 @@
+rofi-calc
+rofi-emoji
+matugen-bin
+python-pywal16
+waypaper-git
